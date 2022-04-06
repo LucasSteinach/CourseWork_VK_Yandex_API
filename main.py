@@ -1,5 +1,3 @@
-import pip
-
 import requests
 
 import os
