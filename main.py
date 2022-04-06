@@ -1,3 +1,5 @@
+import pip
+
 import requests
 
 import os
@@ -133,7 +135,7 @@ if __name__ == '__main__':
 	TOKEN_VK = ''
 	ID_VK = ''
 	TOKEN_YANDEX = ''
-	# TOKEN_GOOGLE = ''
+
 
 	Vk = VkFotoDownloader(ID_VK, TOKEN_VK)
 	Ya = YandexUploader(TOKEN_YANDEX)
