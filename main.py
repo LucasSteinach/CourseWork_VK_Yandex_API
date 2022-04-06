@@ -2,6 +2,8 @@ import requests
 
 import os
 
+from progress.bar import IncrementalBar
+
 import json
 
 from datetime import datetime
@@ -54,7 +56,9 @@ class VkFotoDownloader:
 															 'extended': 1
 															 })
 		list_of_photos = []
+		bar = IncrementalBar('Creating list of photos', max=len(resp.json()['response']['items']))
 		for photo in resp.json()['response']['items']:
+			bar.next()
 			list_of_photos += [{'name': f'{photo["likes"]["count"]}.jpg',
 							   'date': photo['date'],
 							   'size_type': max_size(photo['sizes'])['type'],
@@ -63,6 +67,7 @@ class VkFotoDownloader:
 							   'url': max_size(photo['sizes'])['url']
 							   }]
 		self.duplicates_name(list_of_photos)
+		bar.finish()
 		return list_of_photos
 
 	# creates .json file {"file_name": , "size":)
@@ -102,16 +107,17 @@ class YandexUploader:
 	def upload_directly(self, Vk_object: VkFotoDownloader, album='profile'):
 		path_name = self.path_dir(Vk_object.owner_id)
 		list_of_photos = Vk_object.get_photos_list(album_id=album)
+		bar = IncrementalBar('Progress...', max=len((list_of_photos)))
 		for photo in list_of_photos:
-			resp = requests.put('https://cloud-api.yandex.net/v1/disk/resources/upload',
+			bar.next()
+			resp = requests.post('https://cloud-api.yandex.net/v1/disk/resources/upload',
 								headers={'Authorization': self.token},
 								params={'path': path_name,
 										'url': photo['url']
 										}
 								)
+		bar.finish()
 		return 'Done'
-
-
 
 
 class GoogleUploader:
