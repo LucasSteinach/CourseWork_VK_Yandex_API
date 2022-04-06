@@ -102,7 +102,6 @@ class YandexUploader:
 	def upload_directly(self, Vk_object: VkFotoDownloader, album='profile'):
 		path_name = self.path_dir(Vk_object.owner_id)
 		list_of_photos = Vk_object.get_photos_list(album_id=album)
-		pprint(list_of_photos)
 		for photo in list_of_photos:
 			resp = requests.put('https://cloud-api.yandex.net/v1/disk/resources/upload',
 								headers={'Authorization': self.token},
@@ -110,7 +109,7 @@ class YandexUploader:
 										'url': photo['url']
 										}
 								)
-		pprint(resp)
+		return 'Done'
 
 
 
