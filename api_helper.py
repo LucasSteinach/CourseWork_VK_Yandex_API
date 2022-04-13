@@ -60,7 +60,7 @@ class VkFotoDownloader:
 																 'photo_sizes': 1,
 																 'extended': 1
 																 })
-			if str(resp).split('[')[1][0] == 2:
+			if int(str(resp).split('[')[1][0]) == 2:
 				list_of_photos = []
 				bar = IncrementalBar('Creating list of photos', max=len(resp.json()['response']['items']))
 				for photo in resp.json()['response']['items']:
@@ -79,8 +79,8 @@ class VkFotoDownloader:
 				print(f'Attempt {i} failed... Continues in 5 second')
 				time.sleep(5)
 			else:
-				print('Error! Try again later')
-				return f'Procedure get_photos_list interrupted ({resp})'
+				print(f'Procedure interrupted (get_photos_list, {resp})')
+				break
 
 	# creates .json file {"file_name": , "size":)
 	def set_log_json(self) -> str:
@@ -104,14 +104,14 @@ class YandexUploader:
 			resp = requests.get('https://cloud-api.yandex.net/v1/disk/resources/upload',
 								headers={'Authorization': self.token},
 								params={'path': f'{path_dir}/{file_name}', 'overwrite': 'true'})
-			if str(resp).split('[')[1][0] == 2:
+			if int(str(resp).split('[')[1][0]) == 2:
 				return resp.json()['href']
 			elif i < 10:
 				print(f'Attempt {i} failed... Continues in 5 second')
 				time.sleep(5)
 			else:
-				print('Error! Try again later')
-				return f'Procedure get_href interrupted ({resp})'
+				print(f'Procedure interrupted (get_href_{resp})')
+				break
 
 	def path_dir(self, dir_name):
 		i = 0
@@ -120,21 +120,31 @@ class YandexUploader:
 			resp = requests.put('https://cloud-api.yandex.net/v1/disk/resources',
 								headers={'Authorization': self.token},
 								params={'path': f'/free/photo_{dir_name}'})
-			if str(resp).split('[')[1][0] == 2:
+			if int(str(resp).split('[')[1][0]) == 2:
 				return f'/free/photo_{dir_name}'
 			elif i < 10:
 				print(f'Attempt {i} failed... Continues in 5 second')
 				time.sleep(5)
 			else:
-				print('Error! Try again later')
-				return f'Procedure get_href interrupted ({resp})'
+				print(f'Procedure interrupted (path_dir, {resp})')
+				break
 
 	def uploading_from_hdd(self, file_name, dir_name):
 		file_path = f'{os.getcwd()}\\upload\\{file_name}'
 		with open(file_path, 'r') as file:
 			data = json.load(file)
-			requests.put(self.get_href(file_name, self.path_dir(dir_name)), data=data)
-		return "Done"
+			i = 0
+			while True:
+				i += 1
+				resp = requests.put(self.get_href(file_name, self.path_dir(dir_name)), data=data)
+				if int(str(resp).split('[')[1][0]) == 2:
+					return "Done"
+				elif i < 10:
+					print(f'Attempt {i} failed... Continues in 5 second')
+					time.sleep(5)
+				else:
+					print(f'Procedure interrupted (uploading_from_hdd, {resp})')
+					break
 
 	def upload_directly(self, owner_id,  list_of_photos):
 		path_name = self.path_dir(owner_id)
@@ -150,14 +160,14 @@ class YandexUploader:
 											'url': photo['url']
 											}
 									)
-				if str(resp).split('[')[1][0] == 2:
+				if int(str(resp).split('[')[1][0]) == 2:
 					break
 				elif i < 10:
 					print(f'Attempt {i} failed... Continues in 5 second')
 					time.sleep(5)
 				else:
-					print('Error! Try again later')
-					return f'Procedure get_href interrupted ({resp})'
+					print(f'Procedure interrupted (upload_directly, {resp})')
+					return None
 			bar.finish()
 		return f'All photos ({len(list_of_photos)}) are uploaded'
 

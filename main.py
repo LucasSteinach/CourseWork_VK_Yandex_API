@@ -14,7 +14,6 @@ if __name__ == '__main__':
 	# creates directory in Yandex.disk and uploads into it all photo
 	# directly from profile album (default) of VK User
 	Ya.upload_directly(Vk.owner_id, Vk.get_photos_list())
-	print(Ya.path_dir(Vk.owner_id))
 
 	# uploads log file into Yandex.disk in addition to photos
 	Ya.uploading_from_hdd('log.json', Vk.owner_id)
